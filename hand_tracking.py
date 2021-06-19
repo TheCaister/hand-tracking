@@ -30,6 +30,23 @@ while True:
     # If several hands are detected, loop through them
     if results.multi_hand_landmarks:
         for hand_landmarks in results.multi_hand_landmarks:
+            # Going through every landmark, with id starting from 0
+            for id, landmark in enumerate(hand_landmarks.landmark):
+                # print(id, landmark)
+
+                # The coordinates of the landmarks will be returned as ratios of the image
+                # This means we need to multiply values by the height and width of the image
+                # This is so that we can get precise pixel locations
+                height, width, channels = img.shape
+                centre_x, centre_y = int(landmark.x * width), int(landmark.y * height)
+                print("ID: " + str(id) + " X: " + str(centre_x) + " Y: " + str(centre_y))
+
+                # Testing by drawing circles on the specified landmarks
+                if id == 0:
+                    cv2.circle(img, (centre_x, centre_y), 25, (255, 0, 255), cv2.FILLED)
+                elif id == 4:
+                    cv2.circle(img, (centre_x, centre_y), 25, (255, 0, 255), cv2.FILLED)
+
             # Drawing landmarks and connections on img
             mp_draw.draw_landmarks(img, hand_landmarks, mp_hands.HAND_CONNECTIONS)
 
