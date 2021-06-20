@@ -15,6 +15,7 @@ hands = mp_hands.Hands()
 # Getting drawing utilities for easy hand drawing
 mp_draw = mp.solutions.drawing_utils
 
+# Time variables for calculating FPS
 prev_time = 0
 current_time = 0
 
@@ -27,7 +28,7 @@ while True:
 
     # print(results.multi_hand_landmarks)
 
-    # If several hands are detected, loop through them
+    # If hands are detected, loop through them
     if results.multi_hand_landmarks:
         for hand_landmarks in results.multi_hand_landmarks:
             # Going through every landmark, with id starting from 0
@@ -42,6 +43,7 @@ while True:
                 print("ID: " + str(id) + " X: " + str(centre_x) + " Y: " + str(centre_y))
 
                 # Testing by drawing circles on the specified landmarks
+                # 0 is the bottom of the hand, 4 is the tip of the thumb
                 if id == 0:
                     cv2.circle(img, (centre_x, centre_y), 25, (255, 0, 255), cv2.FILLED)
                 elif id == 4:
