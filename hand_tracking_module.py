@@ -18,15 +18,16 @@ class HandDetector:
         # Getting drawing utilities for easy hand drawing
         self.mp_draw = mp.solutions.drawing_utils
 
+    # Function for detecting hands
     def find_hands(self, img, draw=True):
         imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        results = self.hands.process(imgRGB)
+        self.results = self.hands.process(imgRGB)
 
         # print(results.multi_hand_landmarks)
 
         # If hands are detected, loop through them
-        if results.multi_hand_landmarks:
-            for hand_landmarks in results.multi_hand_landmarks:
+        if self.results.multi_hand_landmarks:
+            for hand_landmarks in self.results.multi_hand_landmarks:
                 # Only draw if draw is True(which it is by default)
                 if draw:
                     # Drawing landmarks and connections on img
@@ -34,26 +35,42 @@ class HandDetector:
 
         return img
 
-                # # Going through every landmark, with id starting from 0
-                # for id, landmark in enumerate(hand_landmarks.landmark):
-                #     # print(id, landmark)
-                #
-                #     # The coordinates of the landmarks will be returned as ratios of the image
-                #     # This means we need to multiply values by the height and width of the image
-                #     # This is so that we can get precise pixel locations
-                #     height, width, channels = img.shape
-                #     centre_x, centre_y = int(landmark.x * width), int(landmark.y * height)
-                #     print("ID: " + str(id) + " X: " + str(centre_x) + " Y: " + str(centre_y))
-                #
-                #     # Testing by drawing circles on the specified landmarks
-                #     # 0 is the bottom of the hand, 4 is the tip of the thumb
-                #     if id == 0:
-                #         cv2.circle(img, (centre_x, centre_y), 25, (255, 0, 255), cv2.FILLED)
-                #     elif id == 4:
-                #         cv2.circle(img, (centre_x, centre_y), 25, (255, 0, 255), cv2.FILLED)
+    # Function for finding the position of a single hand
+    def find_position(self, img, hand_number=0, draw=True):
+
+        # List of every detected landmark's id and coordinates
+        landmark_list = []
+
+        # If hands are detected, loop through them
+        if self.results.multi_hand_landmarks:
+            my_hand = self.results.multi_hand_landmarks[hand_number]
+
+            # Going through every landmark, with id starting from 0
+            for id, landmark in enumerate(my_hand.landmark):
+                # print(id, landmark)
+
+                # The coordinates of the landmarks will be returned as ratios of the image
+                # This means we need to multiply values by the height and width of the image
+                # This is so that we can get precise pixel locations
+                height, width, channels = img.shape
+                centre_x, centre_y = int(landmark.x * width), int(landmark.y * height)
+                # print("ID: " + str(id) + " X: " + str(centre_x) + " Y: " + str(centre_y))
+
+                landmark_list.append([id, centre_x, centre_y])
+
+                if draw:
+                    # Testing by drawing circles on the specified landmarks
+                    # 0 is the bottom of the hand, 4 is the tip of the thumb
+                    if id == 0:
+                        cv2.circle(img, (centre_x, centre_y), 25, (255, 0, 255), cv2.FILLED)
+                    elif id == 4:
+                        cv2.circle(img, (centre_x, centre_y), 25, (255, 0, 255), cv2.FILLED)
+
+        return landmark_list
 
 
 
+# To use the code, copy everything in the main function and import the necessary things
 def main():
     # Time variables for calculating FPS
     prev_time = 0
@@ -71,6 +88,10 @@ def main():
 
         # Using find_hands function
         img = detector.find_hands(img)
+        landmark_list = detector.find_position(img)
+        # Testing the landmark list is working
+        if len(landmark_list) != 0:
+            print(landmark_list[0])
 
         # Calculating the FPS
         current_time = time.time()
