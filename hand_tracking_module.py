@@ -2,6 +2,7 @@ import cv2
 import mediapipe as mp
 import time
 
+
 class HandDetector:
     def __init__(self, mode=False, max_hands=2, detection_confidence=0.5, tracking_confidence=0.5):
         self.mode = mode
@@ -18,10 +19,13 @@ class HandDetector:
         # Getting drawing utilities for easy hand drawing
         self.mp_draw = mp.solutions.drawing_utils
 
+        # List of tip IDs
+        self.tip_ids = [4, 8, 12, 16, 20]
+
     # Function for detecting hands
     def find_hands(self, img, draw=True):
-        imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        self.results = self.hands.process(imgRGB)
+        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        self.results = self.hands.process(img_rgb)
 
         # print(results.multi_hand_landmarks)
 
@@ -39,7 +43,7 @@ class HandDetector:
     def find_position(self, img, hand_number=0, draw=True):
 
         # List of every detected landmark's id and coordinates
-        landmark_list = []
+        self.landmark_list = []
 
         # If hands are detected, loop through them
         if self.results.multi_hand_landmarks:
@@ -56,7 +60,7 @@ class HandDetector:
                 centre_x, centre_y = int(landmark.x * width), int(landmark.y * height)
                 # print("ID: " + str(id) + " X: " + str(centre_x) + " Y: " + str(centre_y))
 
-                landmark_list.append([id, centre_x, centre_y])
+                self.landmark_list.append([id, centre_x, centre_y])
 
                 if draw:
                     # Testing by drawing circles on the specified landmarks
@@ -66,8 +70,30 @@ class HandDetector:
                     elif id == 4:
                         cv2.circle(img, (centre_x, centre_y), 25, (255, 0, 255), cv2.FILLED)
 
-        return landmark_list
+        return self.landmark_list
 
+    def fingers_up(self):
+        fingers = []
+
+        # Get the x value of thumb tips and their corresponding lower knuckles
+        # Code for the thumb is different since it's not like the other fingers
+        # If the tip is to the right of the lower knuckle, we can say the thumb is up
+        # Have yet to check for handedness
+        if self.landmarks_list[self.tip_ids[0]][1] > self.landmarks_list[self.tip_ids[0] - 1][1]:
+            fingers.append(1)
+        else:
+            fingers.append(0)
+
+        for id in range(1, 5):
+            # Get the y value of fingertips and their corresponding lower knuckles
+            # If the tip is above the lower knuckle, we can say it's up
+            # Then append it to the fingers list
+            if self.landmarks_list[self.tip_ids[id]][2] < self.landmarks_list[self.tip_ids[id] - 2][2]:
+                fingers.append(1)
+            else:
+                fingers.append(0)
+
+            return fingers
 
 
 # To use the code, copy everything in the main function and import the necessary things
@@ -115,5 +141,6 @@ def main():
         cv2.imshow("Image", cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE))
         cv2.waitKey(1)
 
-if __name__ = "__main__":
+
+if __name__ == "__main__":
     main()

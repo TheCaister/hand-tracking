@@ -44,10 +44,10 @@ while True:
 
                 # Testing by drawing circles on the specified landmarks
                 # 0 is the bottom of the hand, 4 is the tip of the thumb
-                if id == 0:
-                    cv2.circle(img, (centre_x, centre_y), 25, (255, 0, 255), cv2.FILLED)
-                elif id == 4:
-                    cv2.circle(img, (centre_x, centre_y), 25, (255, 0, 255), cv2.FILLED)
+                # if id == 0:
+                #     cv2.circle(img, (centre_x, centre_y), 25, (255, 0, 255), cv2.FILLED)
+                # elif id == 4:
+                #     cv2.circle(img, (centre_x, centre_y), 25, (255, 0, 255), cv2.FILLED)
 
             # Drawing landmarks and connections on img
             mp_draw.draw_landmarks(img, hand_landmarks, mp_hands.HAND_CONNECTIONS)
